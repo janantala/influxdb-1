@@ -18,11 +18,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/influxdata/config"
 	"github.com/influxdata/influxdb/client/v2"
 	"github.com/influxdata/influxdb/cmd/influxd/run"
 	"github.com/influxdata/influxdb/services/httpd"
 	"github.com/influxdata/influxdb/services/meta"
-	"github.com/influxdata/influxdb/toml"
 )
 
 const emptyResults = `{"results":[{}]}`
@@ -239,15 +239,15 @@ func (s *Server) MustWrite(db, rp, body string, params url.Values) string {
 func NewConfig() *run.Config {
 	c := run.NewConfig()
 	c.ReportingDisabled = true
-	c.Cluster.ShardWriterTimeout = toml.Duration(30 * time.Second)
-	c.Cluster.WriteTimeout = toml.Duration(30 * time.Second)
+	c.Cluster.ShardWriterTimeout = config.Duration(30 * time.Second)
+	c.Cluster.WriteTimeout = config.Duration(30 * time.Second)
 	c.Meta.Dir = MustTempFile()
 	c.Meta.BindAddress = "127.0.0.1:0"
 	c.Meta.HTTPBindAddress = "127.0.0.1:0"
-	c.Meta.HeartbeatTimeout = toml.Duration(50 * time.Millisecond)
-	c.Meta.ElectionTimeout = toml.Duration(50 * time.Millisecond)
-	c.Meta.LeaderLeaseTimeout = toml.Duration(50 * time.Millisecond)
-	c.Meta.CommitTimeout = toml.Duration(5 * time.Millisecond)
+	c.Meta.HeartbeatTimeout = config.Duration(50 * time.Millisecond)
+	c.Meta.ElectionTimeout = config.Duration(50 * time.Millisecond)
+	c.Meta.LeaderLeaseTimeout = config.Duration(50 * time.Millisecond)
+	c.Meta.CommitTimeout = config.Duration(5 * time.Millisecond)
 
 	if !testing.Verbose() {
 		c.Meta.LoggingEnabled = false
