@@ -55,6 +55,7 @@ VENDOR = "InfluxData"
 DESCRIPTION = "Distributed time-series database."
 
 prereqs = [ 'git', 'go', 'gdm' ]
+go_vet_command = ["go", "tool", "vet", "-composites=true", "./"]
 optional_prereqs = [ 'gvm', 'fpm', 'rpmbuild' ]
 
 fpm_common_args = "-f -s dir --log error \
@@ -191,6 +192,12 @@ def create_temp_dir(prefix = None):
 
 def get_current_version_tag():
     version = run("git describe --always --tags --abbrev=0").strip()
+    return version
+
+def get_current_version():
+    version_tag = get_current_version_tag()
+    # Remove leading 'v' and possible '-rc\d+'
+    version = re.sub(r'-rc\d+', '', version_tag[1:])
     return version
 
 def get_current_rc():
@@ -332,7 +339,7 @@ def run_tests(race, parallel, timeout, no_vet):
         print err
         return False
     if not no_vet:
-        p = subprocess.Popen(["go", "tool", "vet", "-composites=true", "./"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.Popen(go_vet_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = p.communicate()
         if len(out) > 0 or len(err) > 0:
             print "Go vet failed. Please run 'go vet ./...' and fix any errors."
@@ -486,7 +493,7 @@ def build_packages(build_output, version, pkg_arch, nightly=False, rc=None, iter
             for a in build_output[p]:
                 current_location = build_output[p][a]
                 # Create second-level directory displaying the architecture (amd64, etc)
-                build_root = os.path.join(tmp_build_dir, p, a, 'influxdb-{}-{}'.format(version, iteration))
+                build_root = os.path.join(tmp_build_dir, p, a, '{}-{}-{}'.format(PACKAGE_NAME, version, iteration))
                 # Create directory tree to mimic file system of package
                 create_dir(build_root)
                 create_package_fs(build_root)
@@ -613,7 +620,7 @@ def main():
     nightly = False
     race = False
     branch = None
-    version = get_current_version_tag()
+    version = get_current_version()
     rc = get_current_rc()
     package = False
     update = False
@@ -628,6 +635,7 @@ def main():
     run_get = True
     upload_bucket = None
     generate = False
+    no_stash = False
 
     for arg in sys.argv[1:]:
         if '--outdir' in arg:
@@ -660,12 +668,11 @@ def main():
         elif '--package' in arg:
             # Signifies that packages should be built.
             package = True
+            # If packaging do not allow stashing of local changes
+            no_stash = True
         elif '--nightly' in arg:
             # Signifies that this is a nightly build.
             nightly = True
-            # In order to cleanly delineate nightly version, we are adding the epoch timestamp
-            # to the version so that version numbers are always greater than the previous nightly.
-            version = "{}.n{}".format(version, int(time.time()))
         elif '--update' in arg:
             # Signifies that dependencies should be updated.
             update = True
@@ -696,6 +703,10 @@ def main():
         elif '--bucket' in arg:
             # The bucket to upload the packages to, relies on boto
             upload_bucket = arg.split("=")[1]
+        elif '--no-stash' in arg:
+            # Do not stash uncommited changes
+            # Fail if uncommited changes exist
+            no_stash = True
         elif '--generate' in arg:
             # Run go generate ./...
             # TODO - this currently does nothing for InfluxDB
@@ -714,7 +725,15 @@ def main():
     if nightly and rc:
         print "!! Cannot be both nightly and a release candidate! Stopping."
         return 1
-
+    
+    if nightly:
+        # In order to cleanly delineate nightly version, we are adding the epoch timestamp
+        # to the version so that version numbers are always greater than the previous nightly.
+        version = "{}~n{}".format(version, int(time.time()))
+        iteration = 0
+    elif rc:
+        iteration = 0
+    
     # Pre-build checks
     check_environ()
     if not check_prereqs():
@@ -733,9 +752,6 @@ def main():
             target_arch = system_arch
     if not target_platform:
         target_platform = get_system_platform()
-    if rc or nightly:
-        # If a release candidate or nightly, set iteration to 0 (instead of 1)
-        iteration = 0
 
     if target_arch == '386':
         target_arch = 'i386'
@@ -772,6 +788,13 @@ def main():
             archs = supported_builds.get(platform)
         else:
             archs = [target_arch]
+
+        if run_get:
+            # Run 'go get' for every platform in case there are platform-specific includes
+            if not go_get(branch, platform=platform, update=update, no_stash=no_stash):
+                print "!! Cannot continue: go get failed"
+                return 1
+
         for arch in archs:
             od = outdir
             if not single_build:
