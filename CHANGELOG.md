@@ -12,6 +12,7 @@
 - [#5562](https://github.com/influxdata/influxdb/pull/5562): Graphite: Support matching fields multiple times (@chrusty)
 - [#5666](https://github.com/influxdata/influxdb/pull/5666): Manage dependencies with gdm
 - [#5512](https://github.com/influxdata/influxdb/pull/5512): HTTP: Add config option to enable HTTP JSON write path which is now disabled by default.
+- [#5691](https://github.com/influxdata/influxdb/pull/5691): Remove associated shard data when retention policies are dropped.
 
 ### Bugfixes
 
