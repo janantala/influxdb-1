@@ -91,44 +91,60 @@ func (data *Data) setDataNode(nodeID uint64, host, tcpHost string) error {
 
 // DeleteDataNode removes a node from the metadata.
 func (data *Data) DeleteDataNode(id uint64) error {
-	// Node has to be larger than 0 to be real
-	if id == 0 {
-		return ErrNodeIDRequired
-	}
-
-	// Remove node id from all shard infos
-	for di, d := range data.Databases {
-		for ri, rp := range d.RetentionPolicies {
-			for sgi, sg := range rp.ShardGroups {
-				for si, s := range sg.Shards {
-					if s.OwnedBy(id) {
-						var owners []ShardOwner
-						for _, o := range s.Owners {
-							if o.NodeID != id {
-								owners = append(owners, o)
-							}
-						}
-						data.Databases[di].RetentionPolicies[ri].ShardGroups[sgi].Shards[si].Owners = owners
-					}
-				}
-			}
-		}
-	}
-
-	// Remove this node from the in memory nodes
 	var nodes []NodeInfo
+	// Remove the data node from the store's list.
 	for _, n := range data.DataNodes {
-		if n.ID == id {
-			continue
+		if n.ID != id {
+			nodes = append(nodes, n)
 		}
-		nodes = append(nodes, n)
 	}
 
 	if len(nodes) == len(data.DataNodes) {
 		return ErrNodeNotFound
 	}
-
 	data.DataNodes = nodes
+
+	// Remove node id from all shard infos
+	for di, d := range data.Databases {
+		for ri, rp := range d.RetentionPolicies {
+			for sgi, sg := range rp.ShardGroups {
+				// Look through all shards in the shard group and
+				// determine if (1) a shard no longer has any owners
+				// (orphaned); and (2) if all shards in the shard group
+				// are orphaned.
+				var ownedShards []ShardInfo
+				for si, s := range sg.Shards {
+					nodeIdx := s.ownerIndexOf(id)
+					// If this data node owns the shard, then remove it
+					// as an owner
+					if nodeIdx > -1 {
+						s.Owners = append(s.Owners[:nodeIdx], s.Owners[nodeIdx+1:]...)
+					}
+
+					// If the shard still has some owners then we want
+					// to keep it in the shard group.
+					if len(s.Owners) != 0 {
+						ownedShards = append(ownedShards, s)
+					}
+
+					// Set the new owners on the shard.
+					data.Databases[di].RetentionPolicies[ri].ShardGroups[sgi].Shards[si].Owners = s.Owners
+				}
+
+				// Mark the shard group as deleted, if none of its
+				// shards are owned or it has no shards.
+				if len(ownedShards) == 0 {
+					// Mark the shard group as deleted. We won't need
+					// to delete the shards.
+					data.Databases[di].RetentionPolicies[ri].ShardGroups[sgi].DeletedAt = time.Now().UTC()
+				}
+
+				// Set the shards on the shard group. This will account
+				// for any shards we've orphaned.
+				data.Databases[di].RetentionPolicies[ri].ShardGroups[sgi].Shards = ownedShards
+			}
+		}
+	}
 	return nil
 }
 
@@ -1192,14 +1208,21 @@ type ShardInfo struct {
 	Owners []ShardOwner
 }
 
-// OwnedBy returns whether the shard's owner IDs includes nodeID.
+// OwnedBy determines whether the shard's owner IDs includes nodeID.
 func (si ShardInfo) OwnedBy(nodeID uint64) bool {
-	for _, so := range si.Owners {
-		if so.NodeID == nodeID {
-			return true
+	return si.ownerIndexOf(nodeID) != -1
+}
+
+// ownerIndexOf returns the index that ID appears at in the shard
+// owner's list of owners, or -1 if ID does not appear in the shard
+// owner's owners list.
+func (si ShardInfo) ownerIndexOf(ID uint64) int {
+	for i, so := range si.Owners {
+		if so.NodeID == ID {
+			return i
 		}
 	}
-	return false
+	return -1
 }
 
 // clone returns a deep copy of si.
