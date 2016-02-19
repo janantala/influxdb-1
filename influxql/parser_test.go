@@ -1930,6 +1930,7 @@ func TestParser_ParseExpr(t *testing.T) {
 	}{
 		// Primitives
 		{s: `100`, expr: &influxql.NumberLiteral{Val: 100}},
+		{s: `23i`, expr: &influxql.IntegerLiteral{Val: 23}},
 		{s: `'foo bar'`, expr: &influxql.StringLiteral{Val: "foo bar"}},
 		{s: `true`, expr: &influxql.BooleanLiteral{Val: true}},
 		{s: `false`, expr: &influxql.BooleanLiteral{Val: false}},

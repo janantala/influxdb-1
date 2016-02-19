@@ -392,9 +392,14 @@ func buildRHSTransformIterator(lhs Iterator, rhs Literal, op Token, ic IteratorC
 			return nil, fmt.Errorf("type mismatch on LHS, unable to use %T as a FloatIterator", lhs)
 		}
 
-		lit, ok := rhs.(*NumberLiteral)
-		if !ok {
-			return nil, fmt.Errorf("type mismatch on RHS, unable to use %T as a NumberLiteral", lhs)
+		var val float64
+		switch rhs := rhs.(type) {
+		case *NumberLiteral:
+			val = rhs.Val
+		case *IntegerLiteral:
+			val = float64(rhs.Val)
+		default:
+			return nil, fmt.Errorf("type mismatch on RHS, unable to use %T as a NumberLiteral", rhs)
 		}
 		return &floatTransformIterator{
 			input: input,
@@ -402,7 +407,7 @@ func buildRHSTransformIterator(lhs Iterator, rhs Literal, op Token, ic IteratorC
 				if p == nil {
 					return nil
 				}
-				p.Value = fn(p.Value, lit.Val)
+				p.Value = fn(p.Value, val)
 				return p
 			},
 		}, nil
@@ -417,9 +422,14 @@ func buildRHSTransformIterator(lhs Iterator, rhs Literal, op Token, ic IteratorC
 			return nil, fmt.Errorf("type mismatch on LHS, unable to use %T as a FloatIterator", lhs)
 		}
 
-		lit, ok := rhs.(*NumberLiteral)
-		if !ok {
-			return nil, fmt.Errorf("type mismatch on RHS, unable to use %T as a NumberLiteral", lhs)
+		var val float64
+		switch rhs := rhs.(type) {
+		case *NumberLiteral:
+			val = rhs.Val
+		case *IntegerLiteral:
+			val = float64(rhs.Val)
+		default:
+			return nil, fmt.Errorf("type mismatch on RHS, unable to use %T as a NumberLiteral", rhs)
 		}
 		return &floatBoolTransformIterator{
 			input: input,
@@ -431,7 +441,64 @@ func buildRHSTransformIterator(lhs Iterator, rhs Literal, op Token, ic IteratorC
 					Name:  p.Name,
 					Tags:  p.Tags,
 					Time:  p.Time,
-					Value: fn(p.Value, lit.Val),
+					Value: fn(p.Value, val),
+					Aux:   p.Aux,
+				}
+			},
+		}, nil
+	case func(int64, int64) int64:
+		var input IntegerIterator
+		switch lhs := lhs.(type) {
+		case IntegerIterator:
+			input = lhs
+		default:
+			return nil, fmt.Errorf("type mismatch on LHS, unable to use %T as an IntegerIterator", lhs)
+		}
+
+		var val int64
+		switch rhs := rhs.(type) {
+		case *IntegerLiteral:
+			val = rhs.Val
+		default:
+			return nil, fmt.Errorf("type mismatch on RHS, unable to use %T as an IntegerLiteral", rhs)
+		}
+		return &integerTransformIterator{
+			input: input,
+			fn: func(p *IntegerPoint) *IntegerPoint {
+				if p == nil {
+					return nil
+				}
+				p.Value = fn(p.Value, val)
+				return p
+			},
+		}, nil
+	case func(int64, int64) bool:
+		var input IntegerIterator
+		switch lhs := lhs.(type) {
+		case IntegerIterator:
+			input = lhs
+		default:
+			return nil, fmt.Errorf("type mismatch on LHS, unable to use %T as an IntegerIterator", lhs)
+		}
+
+		var val int64
+		switch rhs := rhs.(type) {
+		case *IntegerLiteral:
+			val = rhs.Val
+		default:
+			return nil, fmt.Errorf("type mismatch on RHS, unable to use %T as an IntegerLiteral", rhs)
+		}
+		return &integerBoolTransformIterator{
+			input: input,
+			fn: func(p *IntegerPoint) *BooleanPoint {
+				if p == nil {
+					return nil
+				}
+				return &BooleanPoint{
+					Name:  p.Name,
+					Tags:  p.Tags,
+					Time:  p.Time,
+					Value: fn(p.Value, val),
 					Aux:   p.Aux,
 				}
 			},
@@ -454,8 +521,13 @@ func buildLHSTransformIterator(lhs Literal, rhs Iterator, op Token, ic IteratorC
 			return nil, fmt.Errorf("type mismatch on RHS, unable to use %T as a FloatIterator", rhs)
 		}
 
-		lit, ok := lhs.(*NumberLiteral)
-		if !ok {
+		var val float64
+		switch lhs := lhs.(type) {
+		case *NumberLiteral:
+			val = lhs.Val
+		case *IntegerLiteral:
+			val = float64(lhs.Val)
+		default:
 			return nil, fmt.Errorf("type mismatch on LHS, unable to use %T as a NumberLiteral", lhs)
 		}
 		return &floatTransformIterator{
@@ -464,7 +536,7 @@ func buildLHSTransformIterator(lhs Literal, rhs Iterator, op Token, ic IteratorC
 				if p == nil {
 					return nil
 				}
-				p.Value = fn(lit.Val, p.Value)
+				p.Value = fn(val, p.Value)
 				return p
 			},
 		}, nil
@@ -479,8 +551,13 @@ func buildLHSTransformIterator(lhs Literal, rhs Iterator, op Token, ic IteratorC
 			return nil, fmt.Errorf("type mismatch on RHS, unable to use %T as a FloatIterator", rhs)
 		}
 
-		lit, ok := lhs.(*NumberLiteral)
-		if !ok {
+		var val float64
+		switch lhs := lhs.(type) {
+		case *NumberLiteral:
+			val = lhs.Val
+		case *IntegerLiteral:
+			val = float64(lhs.Val)
+		default:
 			return nil, fmt.Errorf("type mismatch on LHS, unable to use %T as a NumberLiteral", lhs)
 		}
 		return &floatBoolTransformIterator{
@@ -493,7 +570,64 @@ func buildLHSTransformIterator(lhs Literal, rhs Iterator, op Token, ic IteratorC
 					Name:  p.Name,
 					Tags:  p.Tags,
 					Time:  p.Time,
-					Value: fn(lit.Val, p.Value),
+					Value: fn(val, p.Value),
+					Aux:   p.Aux,
+				}
+			},
+		}, nil
+	case func(int64, int64) int64:
+		var input IntegerIterator
+		switch rhs := rhs.(type) {
+		case IntegerIterator:
+			input = rhs
+		default:
+			return nil, fmt.Errorf("type mismatch on RHS, unable to use %T as an IntegerIterator", rhs)
+		}
+
+		var val int64
+		switch lhs := lhs.(type) {
+		case *IntegerLiteral:
+			val = lhs.Val
+		default:
+			return nil, fmt.Errorf("type mismatch on LHS, unable to use %T as an IntegerLiteral", lhs)
+		}
+		return &integerTransformIterator{
+			input: input,
+			fn: func(p *IntegerPoint) *IntegerPoint {
+				if p == nil {
+					return nil
+				}
+				p.Value = fn(val, p.Value)
+				return p
+			},
+		}, nil
+	case func(int64, int64) bool:
+		var input IntegerIterator
+		switch rhs := rhs.(type) {
+		case IntegerIterator:
+			input = rhs
+		default:
+			return nil, fmt.Errorf("type mismatch on RHS, unable to use %T as an IntegerIterator", rhs)
+		}
+
+		var val int64
+		switch lhs := lhs.(type) {
+		case *IntegerLiteral:
+			val = lhs.Val
+		default:
+			return nil, fmt.Errorf("type mismatch on LHS, unable to use %T as an IntegerLiteral", lhs)
+		}
+		return &integerBoolTransformIterator{
+			input: input,
+			fn: func(p *IntegerPoint) *BooleanPoint {
+				if p == nil {
+					return nil
+				}
+				return &BooleanPoint{
+					Name:  p.Name,
+					Tags:  p.Tags,
+					Time:  p.Time,
+					Value: fn(val, p.Value),
 					Aux:   p.Aux,
 				}
 			},
@@ -652,6 +786,8 @@ func literalDataType(lit Literal) DataType {
 	switch lit.(type) {
 	case *NumberLiteral:
 		return Float
+	case *IntegerLiteral:
+		return Integer
 	case *StringLiteral:
 		return String
 	case *BooleanLiteral:

@@ -133,6 +133,7 @@ func (*Call) node()            {}
 func (*Dimension) node()       {}
 func (Dimensions) node()       {}
 func (*DurationLiteral) node() {}
+func (*IntegerLiteral) node()  {}
 func (*Field) node()           {}
 func (Fields) node()           {}
 func (*Measurement) node()     {}
@@ -249,6 +250,7 @@ func (*BooleanLiteral) expr()  {}
 func (*Call) expr()            {}
 func (*Distinct) expr()        {}
 func (*DurationLiteral) expr() {}
+func (*IntegerLiteral) expr()  {}
 func (*nilLiteral) expr()      {}
 func (*NumberLiteral) expr()   {}
 func (*ParenExpr) expr()       {}
@@ -266,6 +268,7 @@ type Literal interface {
 
 func (*BooleanLiteral) literal()  {}
 func (*DurationLiteral) literal() {}
+func (*IntegerLiteral) literal()  {}
 func (*nilLiteral) literal()      {}
 func (*NumberLiteral) literal()   {}
 func (*RegexLiteral) literal()    {}
@@ -2848,6 +2851,14 @@ type NumberLiteral struct {
 // String returns a string representation of the literal.
 func (l *NumberLiteral) String() string { return strconv.FormatFloat(l.Val, 'f', 3, 64) }
 
+// IntegerLiteral represents an integer literal.
+type IntegerLiteral struct {
+	Val int64
+}
+
+// String returns a string representation of the literal.
+func (l *IntegerLiteral) String() string { return fmt.Sprintf("%di", l.Val) }
+
 // BooleanLiteral represents a boolean literal.
 type BooleanLiteral struct {
 	Val bool
@@ -2983,6 +2994,8 @@ func CloneExpr(expr Expr) Expr {
 		return &Distinct{Val: expr.Val}
 	case *DurationLiteral:
 		return &DurationLiteral{Val: expr.Val}
+	case *IntegerLiteral:
+		return &IntegerLiteral{Val: expr.Val}
 	case *NumberLiteral:
 		return &NumberLiteral{Val: expr.Val}
 	case *ParenExpr:

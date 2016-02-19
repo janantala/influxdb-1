@@ -89,6 +89,8 @@ func TestScanner_Scan(t *testing.T) {
 		{s: `.23`, tok: influxql.NUMBER, lit: `.23`},
 		{s: `+.23`, tok: influxql.NUMBER, lit: `+.23`},
 		{s: `-.23`, tok: influxql.NUMBER, lit: `-.23`},
+		{s: `23i`, tok: influxql.INTEGER, lit: `23i`},
+		{s: `-23i`, tok: influxql.INTEGER, lit: `-23i`},
 		//{s: `.`, tok: influxql.ILLEGAL, lit: `.`},
 		{s: `-.`, tok: influxql.SUB, lit: ``},
 		{s: `+.`, tok: influxql.ADD, lit: ``},

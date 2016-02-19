@@ -1160,7 +1160,7 @@ func TestSelect_BinaryExpr_Float(t *testing.T) {
 		Points    [][]influxql.Point
 	}{
 		{
-			Name:      "rhs binary add",
+			Name:      "rhs binary add number",
 			Statement: `SELECT value + 2 FROM cpu`,
 			Points: [][]influxql.Point{
 				{&influxql.FloatPoint{Name: "cpu", Time: 0 * Second, Value: 22}},
@@ -1169,8 +1169,26 @@ func TestSelect_BinaryExpr_Float(t *testing.T) {
 			},
 		},
 		{
-			Name:      "lhs binary add",
+			Name:      "rhs binary add integer",
+			Statement: `SELECT value + 2i FROM cpu`,
+			Points: [][]influxql.Point{
+				{&influxql.FloatPoint{Name: "cpu", Time: 0 * Second, Value: 22}},
+				{&influxql.FloatPoint{Name: "cpu", Time: 5 * Second, Value: 12}},
+				{&influxql.FloatPoint{Name: "cpu", Time: 9 * Second, Value: 21}},
+			},
+		},
+		{
+			Name:      "lhs binary add number",
 			Statement: `SELECT 2 + value FROM cpu`,
+			Points: [][]influxql.Point{
+				{&influxql.FloatPoint{Name: "cpu", Time: 0 * Second, Value: 22}},
+				{&influxql.FloatPoint{Name: "cpu", Time: 5 * Second, Value: 12}},
+				{&influxql.FloatPoint{Name: "cpu", Time: 9 * Second, Value: 21}},
+			},
+		},
+		{
+			Name:      "lhs binary add integer",
+			Statement: `SELECT 2i + value FROM cpu`,
 			Points: [][]influxql.Point{
 				{&influxql.FloatPoint{Name: "cpu", Time: 0 * Second, Value: 22}},
 				{&influxql.FloatPoint{Name: "cpu", Time: 5 * Second, Value: 12}},
@@ -1187,7 +1205,7 @@ func TestSelect_BinaryExpr_Float(t *testing.T) {
 			},
 		},
 		{
-			Name:      "rhs binary multiply",
+			Name:      "rhs binary multiply number",
 			Statement: `SELECT value * 2 FROM cpu`,
 			Points: [][]influxql.Point{
 				{&influxql.FloatPoint{Name: "cpu", Time: 0 * Second, Value: 40}},
@@ -1196,8 +1214,26 @@ func TestSelect_BinaryExpr_Float(t *testing.T) {
 			},
 		},
 		{
-			Name:      "lhs binary multiply",
+			Name:      "rhs binary multiply integer",
+			Statement: `SELECT value * 2i FROM cpu`,
+			Points: [][]influxql.Point{
+				{&influxql.FloatPoint{Name: "cpu", Time: 0 * Second, Value: 40}},
+				{&influxql.FloatPoint{Name: "cpu", Time: 5 * Second, Value: 20}},
+				{&influxql.FloatPoint{Name: "cpu", Time: 9 * Second, Value: 38}},
+			},
+		},
+		{
+			Name:      "lhs binary multiply number",
 			Statement: `SELECT 2 * value FROM cpu`,
+			Points: [][]influxql.Point{
+				{&influxql.FloatPoint{Name: "cpu", Time: 0 * Second, Value: 40}},
+				{&influxql.FloatPoint{Name: "cpu", Time: 5 * Second, Value: 20}},
+				{&influxql.FloatPoint{Name: "cpu", Time: 9 * Second, Value: 38}},
+			},
+		},
+		{
+			Name:      "lhs binary multiply integer",
+			Statement: `SELECT 2i * value FROM cpu`,
 			Points: [][]influxql.Point{
 				{&influxql.FloatPoint{Name: "cpu", Time: 0 * Second, Value: 40}},
 				{&influxql.FloatPoint{Name: "cpu", Time: 5 * Second, Value: 20}},
@@ -1214,7 +1250,7 @@ func TestSelect_BinaryExpr_Float(t *testing.T) {
 			},
 		},
 		{
-			Name:      "rhs binary subtract",
+			Name:      "rhs binary subtract number",
 			Statement: `SELECT value - 2 FROM cpu`,
 			Points: [][]influxql.Point{
 				{&influxql.FloatPoint{Name: "cpu", Time: 0 * Second, Value: 18}},
@@ -1223,8 +1259,26 @@ func TestSelect_BinaryExpr_Float(t *testing.T) {
 			},
 		},
 		{
-			Name:      "lhs binary subtract",
+			Name:      "rhs binary subtract integer",
+			Statement: `SELECT value - 2i FROM cpu`,
+			Points: [][]influxql.Point{
+				{&influxql.FloatPoint{Name: "cpu", Time: 0 * Second, Value: 18}},
+				{&influxql.FloatPoint{Name: "cpu", Time: 5 * Second, Value: 8}},
+				{&influxql.FloatPoint{Name: "cpu", Time: 9 * Second, Value: 17}},
+			},
+		},
+		{
+			Name:      "lhs binary subtract number",
 			Statement: `SELECT 2 - value FROM cpu`,
+			Points: [][]influxql.Point{
+				{&influxql.FloatPoint{Name: "cpu", Time: 0 * Second, Value: -18}},
+				{&influxql.FloatPoint{Name: "cpu", Time: 5 * Second, Value: -8}},
+				{&influxql.FloatPoint{Name: "cpu", Time: 9 * Second, Value: -17}},
+			},
+		},
+		{
+			Name:      "lhs binary subtract integer",
+			Statement: `SELECT 2i - value FROM cpu`,
 			Points: [][]influxql.Point{
 				{&influxql.FloatPoint{Name: "cpu", Time: 0 * Second, Value: -18}},
 				{&influxql.FloatPoint{Name: "cpu", Time: 5 * Second, Value: -8}},
@@ -1241,7 +1295,7 @@ func TestSelect_BinaryExpr_Float(t *testing.T) {
 			},
 		},
 		{
-			Name:      "rhs binary division",
+			Name:      "rhs binary division number",
 			Statement: `SELECT value / 2 FROM cpu`,
 			Points: [][]influxql.Point{
 				{&influxql.FloatPoint{Name: "cpu", Time: 0 * Second, Value: 10}},
@@ -1250,8 +1304,26 @@ func TestSelect_BinaryExpr_Float(t *testing.T) {
 			},
 		},
 		{
-			Name:      "lhs binary division",
+			Name:      "rhs binary division integer",
+			Statement: `SELECT value / 2i FROM cpu`,
+			Points: [][]influxql.Point{
+				{&influxql.FloatPoint{Name: "cpu", Time: 0 * Second, Value: 10}},
+				{&influxql.FloatPoint{Name: "cpu", Time: 5 * Second, Value: 5}},
+				{&influxql.FloatPoint{Name: "cpu", Time: 9 * Second, Value: float64(19) / 2}},
+			},
+		},
+		{
+			Name:      "lhs binary division number",
 			Statement: `SELECT 38 / value FROM cpu`,
+			Points: [][]influxql.Point{
+				{&influxql.FloatPoint{Name: "cpu", Time: 0 * Second, Value: 1.9}},
+				{&influxql.FloatPoint{Name: "cpu", Time: 5 * Second, Value: 3.8}},
+				{&influxql.FloatPoint{Name: "cpu", Time: 9 * Second, Value: 2}},
+			},
+		},
+		{
+			Name:      "lhs binary division integer",
+			Statement: `SELECT 38i / value FROM cpu`,
 			Points: [][]influxql.Point{
 				{&influxql.FloatPoint{Name: "cpu", Time: 0 * Second, Value: 1.9}},
 				{&influxql.FloatPoint{Name: "cpu", Time: 5 * Second, Value: 3.8}},
@@ -1301,7 +1373,7 @@ func TestSelect_BinaryExpr_Integer(t *testing.T) {
 		Points    [][]influxql.Point
 	}{
 		{
-			Name:      "rhs binary add",
+			Name:      "rhs binary add number",
 			Statement: `SELECT value + 2 FROM cpu`,
 			Points: [][]influxql.Point{
 				{&influxql.FloatPoint{Name: "cpu", Time: 0 * Second, Value: 22}},
@@ -1310,12 +1382,30 @@ func TestSelect_BinaryExpr_Integer(t *testing.T) {
 			},
 		},
 		{
-			Name:      "lhs binary add",
+			Name:      "rhs binary add integer",
+			Statement: `SELECT value + 2i FROM cpu`,
+			Points: [][]influxql.Point{
+				{&influxql.IntegerPoint{Name: "cpu", Time: 0 * Second, Value: 22}},
+				{&influxql.IntegerPoint{Name: "cpu", Time: 5 * Second, Value: 12}},
+				{&influxql.IntegerPoint{Name: "cpu", Time: 9 * Second, Value: 21}},
+			},
+		},
+		{
+			Name:      "lhs binary add number",
 			Statement: `SELECT 2 + value FROM cpu`,
 			Points: [][]influxql.Point{
 				{&influxql.FloatPoint{Name: "cpu", Time: 0 * Second, Value: 22}},
 				{&influxql.FloatPoint{Name: "cpu", Time: 5 * Second, Value: 12}},
 				{&influxql.FloatPoint{Name: "cpu", Time: 9 * Second, Value: 21}},
+			},
+		},
+		{
+			Name:      "lhs binary add integer",
+			Statement: `SELECT 2i + value FROM cpu`,
+			Points: [][]influxql.Point{
+				{&influxql.IntegerPoint{Name: "cpu", Time: 0 * Second, Value: 22}},
+				{&influxql.IntegerPoint{Name: "cpu", Time: 5 * Second, Value: 12}},
+				{&influxql.IntegerPoint{Name: "cpu", Time: 9 * Second, Value: 21}},
 			},
 		},
 		{
@@ -1328,7 +1418,7 @@ func TestSelect_BinaryExpr_Integer(t *testing.T) {
 			},
 		},
 		{
-			Name:      "rhs binary multiply",
+			Name:      "rhs binary multiply number",
 			Statement: `SELECT value * 2 FROM cpu`,
 			Points: [][]influxql.Point{
 				{&influxql.FloatPoint{Name: "cpu", Time: 0 * Second, Value: 40}},
@@ -1337,12 +1427,30 @@ func TestSelect_BinaryExpr_Integer(t *testing.T) {
 			},
 		},
 		{
-			Name:      "lhs binary multiply",
+			Name:      "rhs binary multiply integer",
+			Statement: `SELECT value * 2i FROM cpu`,
+			Points: [][]influxql.Point{
+				{&influxql.IntegerPoint{Name: "cpu", Time: 0 * Second, Value: 40}},
+				{&influxql.IntegerPoint{Name: "cpu", Time: 5 * Second, Value: 20}},
+				{&influxql.IntegerPoint{Name: "cpu", Time: 9 * Second, Value: 38}},
+			},
+		},
+		{
+			Name:      "lhs binary multiply number",
 			Statement: `SELECT 2 * value FROM cpu`,
 			Points: [][]influxql.Point{
 				{&influxql.FloatPoint{Name: "cpu", Time: 0 * Second, Value: 40}},
 				{&influxql.FloatPoint{Name: "cpu", Time: 5 * Second, Value: 20}},
 				{&influxql.FloatPoint{Name: "cpu", Time: 9 * Second, Value: 38}},
+			},
+		},
+		{
+			Name:      "lhs binary multiply integer",
+			Statement: `SELECT 2i * value FROM cpu`,
+			Points: [][]influxql.Point{
+				{&influxql.IntegerPoint{Name: "cpu", Time: 0 * Second, Value: 40}},
+				{&influxql.IntegerPoint{Name: "cpu", Time: 5 * Second, Value: 20}},
+				{&influxql.IntegerPoint{Name: "cpu", Time: 9 * Second, Value: 38}},
 			},
 		},
 		{
@@ -1355,7 +1463,7 @@ func TestSelect_BinaryExpr_Integer(t *testing.T) {
 			},
 		},
 		{
-			Name:      "rhs binary subtract",
+			Name:      "rhs binary subtract number",
 			Statement: `SELECT value - 2 FROM cpu`,
 			Points: [][]influxql.Point{
 				{&influxql.FloatPoint{Name: "cpu", Time: 0 * Second, Value: 18}},
@@ -1364,12 +1472,30 @@ func TestSelect_BinaryExpr_Integer(t *testing.T) {
 			},
 		},
 		{
-			Name:      "lhs binary subtract",
+			Name:      "rhs binary subtract integer",
+			Statement: `SELECT value - 2i FROM cpu`,
+			Points: [][]influxql.Point{
+				{&influxql.IntegerPoint{Name: "cpu", Time: 0 * Second, Value: 18}},
+				{&influxql.IntegerPoint{Name: "cpu", Time: 5 * Second, Value: 8}},
+				{&influxql.IntegerPoint{Name: "cpu", Time: 9 * Second, Value: 17}},
+			},
+		},
+		{
+			Name:      "lhs binary subtract number",
 			Statement: `SELECT 2 - value FROM cpu`,
 			Points: [][]influxql.Point{
 				{&influxql.FloatPoint{Name: "cpu", Time: 0 * Second, Value: -18}},
 				{&influxql.FloatPoint{Name: "cpu", Time: 5 * Second, Value: -8}},
 				{&influxql.FloatPoint{Name: "cpu", Time: 9 * Second, Value: -17}},
+			},
+		},
+		{
+			Name:      "lhs binary subtract integer",
+			Statement: `SELECT 2i - value FROM cpu`,
+			Points: [][]influxql.Point{
+				{&influxql.IntegerPoint{Name: "cpu", Time: 0 * Second, Value: -18}},
+				{&influxql.IntegerPoint{Name: "cpu", Time: 5 * Second, Value: -8}},
+				{&influxql.IntegerPoint{Name: "cpu", Time: 9 * Second, Value: -17}},
 			},
 		},
 		{
@@ -1382,7 +1508,7 @@ func TestSelect_BinaryExpr_Integer(t *testing.T) {
 			},
 		},
 		{
-			Name:      "rhs binary division",
+			Name:      "rhs binary division number",
 			Statement: `SELECT value / 2 FROM cpu`,
 			Points: [][]influxql.Point{
 				{&influxql.FloatPoint{Name: "cpu", Time: 0 * Second, Value: 10}},
@@ -1391,12 +1517,30 @@ func TestSelect_BinaryExpr_Integer(t *testing.T) {
 			},
 		},
 		{
-			Name:      "lhs binary division",
+			Name:      "rhs binary division integer",
+			Statement: `SELECT value / 2i FROM cpu`,
+			Points: [][]influxql.Point{
+				{&influxql.IntegerPoint{Name: "cpu", Time: 0 * Second, Value: 10}},
+				{&influxql.IntegerPoint{Name: "cpu", Time: 5 * Second, Value: 5}},
+				{&influxql.IntegerPoint{Name: "cpu", Time: 9 * Second, Value: 9}},
+			},
+		},
+		{
+			Name:      "lhs binary division number",
 			Statement: `SELECT 38 / value FROM cpu`,
 			Points: [][]influxql.Point{
 				{&influxql.FloatPoint{Name: "cpu", Time: 0 * Second, Value: 1.9}},
 				{&influxql.FloatPoint{Name: "cpu", Time: 5 * Second, Value: 3.8}},
 				{&influxql.FloatPoint{Name: "cpu", Time: 9 * Second, Value: 2.0}},
+			},
+		},
+		{
+			Name:      "lhs binary division integer",
+			Statement: `SELECT 38i / value FROM cpu`,
+			Points: [][]influxql.Point{
+				{&influxql.IntegerPoint{Name: "cpu", Time: 0 * Second, Value: 1}},
+				{&influxql.IntegerPoint{Name: "cpu", Time: 5 * Second, Value: 3}},
+				{&influxql.IntegerPoint{Name: "cpu", Time: 9 * Second, Value: 2}},
 			},
 		},
 		{

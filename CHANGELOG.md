@@ -13,6 +13,7 @@
 - [#5666](https://github.com/influxdata/influxdb/pull/5666): Manage dependencies with gdm
 - [#5512](https://github.com/influxdata/influxdb/pull/5512): HTTP: Add config option to enable HTTP JSON write path which is now disabled by default.
 - [#5336](https://github.com/influxdata/influxdb/pull/5366): Enabled golint for influxql. @gabelev
+- [#5744](https://github.com/influxdata/influxdb/issues/5744): Add integer literal support to the query language.
 
 ### Bugfixes
 

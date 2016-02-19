@@ -2329,6 +2329,12 @@ func (p *Parser) parseUnaryExpr() (Expr, error) {
 			return nil, &ParseError{Message: "unable to parse number", Pos: pos}
 		}
 		return &NumberLiteral{Val: v}, nil
+	case INTEGER:
+		v, err := strconv.ParseInt(lit[:len(lit)-1], 10, 64)
+		if err != nil {
+			return nil, &ParseError{Message: "unable to parse integer", Pos: pos}
+		}
+		return &IntegerLiteral{Val: v}, nil
 	case TRUE, FALSE:
 		return &BooleanLiteral{Val: (tok == TRUE)}, nil
 	case DURATIONVAL:
